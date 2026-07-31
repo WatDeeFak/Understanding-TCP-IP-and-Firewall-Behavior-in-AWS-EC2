@@ -20,7 +20,7 @@ Before starting this project, ensure you have:
 - Place the instance in a public subnet, assign a public IPv4 address,
 - configure a Security Group that allows SSH (TCP 22) from your current public IP
 - and HTTP (TCP 80) from the internet.
-![ec2](image1\ec2-net.png)
+![ec2](image1/ec2-net.png)
 
 The EC2 instance is successfully deployed in a public subnet with a public IPv4 address. The associated Security Group allows SSH access for administration and HTTP access for web traffic.
 
@@ -28,7 +28,7 @@ The EC2 instance is successfully deployed in a public subnet with a public IPv4 
 Connect to the EC2 instance using your local terminal (PowerShell or Terminal) and verify that remote access is working correctly.
 
 ssh -i your-key.pem ec2-user@<Public-IP>
-![login](image1\login.png)
+![login](image1/login.png)
 
 The EC2 instance is successfully accessed through SSH, confirming that the network configuration and Security Group allow secure remote administration.
 
@@ -39,16 +39,16 @@ sudo dnf update -y
 sudo dnf install nginx -y
 sudo systemctl enable nginx
 sudo systemctl start nginx
-![status](image1\status-nginx.png)
+![status](image1/status-nginx.png)
 
 The Nginx service is active and running on the EC2 instance, confirming that the web server has been installed successfully.
 
 ## Step 4 - Verify HTTP Connectivity
 Open the EC2 public IP address in a web browser to verify that the default Nginx welcome page is accessible.
 
-![nginx](image1\nginx.png)
+![nginx](image1/nginx.png)
 
 The default Nginx web page is successfully displayed through the EC2 public IP, confirming that HTTP connectivity between the client and the EC2 instance is functioning correctly.
 
 # Phase 2
-![ec2](image1\ec2-net.png)
+
