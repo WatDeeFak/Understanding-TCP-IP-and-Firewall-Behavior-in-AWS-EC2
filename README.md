@@ -27,7 +27,7 @@ The EC2 instance is successfully deployed in a public subnet with a public IPv4 
 ## Step 2 - Connect to the EC2 Instance via SSH
 Connect to the EC2 instance using your local terminal (PowerShell or Terminal) and verify that remote access is working correctly.
 
-ssh -i your-key.pem ec2-user@<Public-IP>
+ssh -i your-key.pem ec2-user@your public IP
 ![login](image1/login.png)
 
 The EC2 instance is successfully accessed through SSH, confirming that the network configuration and Security Group allow secure remote administration.
