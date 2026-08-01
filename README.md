@@ -58,7 +58,7 @@ sudo dnf install nc -y
 
 nc -h
 ![menu](image2/nc-menu.png)
-he Netcat utility is successfully installed and ready to perform TCP connectivity testing.
+The Netcat utility is successfully installed and ready to perform TCP connectivity testing.
 
 ## Step 2 - Test TCP Connectivity to Port 80
 - Verify that Nginx is accepting TCP connections on port 80.
@@ -152,6 +152,85 @@ The comparison highlights how scan results change depending on the network path 
 
 ## 💡 Lesson Learned
 Nmap reports the network perspective of a service rather than the service status itself. A service may be running and listening locally, yet appear filtered when scanned through the public network due to firewall rules such as AWS Security Groups.
+
+# Phase 4 - Understanding Stateful Firewall Behavior with Security Groups
+## Objective
+Modify the Security Group to observe how a stateful firewall affects network accessibility without changing the application or operating system. This phase demonstrates that blocking network traffic does not stop the service itself.
+
+## Step 1 - Verify the Baseline
+- Before modifying the firewall, verify that the web server is accessible from a web browser.
+
+http://Public-IP
+![nginx](image1/nginx.png)
+
+The Nginx web server is successfully accessible through the EC2 public IP, confirming that HTTP traffic is currently allowed by the Security Group.
+
+## Step 2 - Remove the HTTP Rule
+- Open the EC2 Security Group and remove the inbound HTTP rule (TCP Port 80).
+- Leave the SSH rule unchanged to maintain remote administration access.
+![no http](image4/no-http.png)
+
+The HTTP inbound rule has been removed, preventing external HTTP traffic while preserving SSH access.
+
+## Step 3 - Validate External Access
+- Attempt to access the web server again from a web browser.
+
+http://Public-IP
+![no site](image4/no-site.png)
+
+The browser can no longer reach the web server because HTTP traffic is blocked by the Security Group.
+
+## Step 4 - Verify the Nginx Service
+- Check whether the Nginx service is still running.
+
+sudo systemctl status nginx
+![nginx](image1/status-nginx.png)
+
+Although the website is no longer accessible from the internet, the Nginx service continues to run normally.
+
+## Step 5 - Verify the Listening Port
+- Display the listening TCP ports.
+
+sudo ss -tulnp | grep nginx
+![listen](image4/listen-80.png)
+
+Nginx continues listening on TCP port 80, confirming that the operating system has not stopped the service.
+
+## Step 6 - Test Local Connectivity
+- Verify TCP connectivity from the EC2 instance itself.
+
+nc -vz 127.0.0.1 80
+![nc](image4/nc-vz.png)
+
+- Next, scan localhost.
+![localhost](image3/localhost.png)
+
+Local TCP connectivity remains successful because localhost traffic does not depend on the Security Group.
+
+## Step 7 - Scan the Public IP Address
+- Perform another port scan against the EC2 public IP.
+
+nmap -Pn -p 22,80 <Public-IP>
+![filtered](image4/filtered.png)
+
+Both ports appear filtered from the public network, demonstrating that the Security Group blocks incoming connections before they reach the EC2 instance.
+
+## Results Comparison
+
+| Validation        | Before               | After                    |
+| ----------------- | -------------------- | ------------------------ |
+| Browser Access    | ✅ Available          | ❌ Blocked               |
+| Nginx Service     | Running              | Running                  |
+| Listening Port    | Port 80 LISTEN       | Port 80 LISTEN           |
+| Local Netcat Test | Connected            | Connected                |
+| Local Nmap Scan   | 22 Open, 80 Open     | 22 Open, 80 Open         |
+| Public Nmap Scan  | 22 Filtered, 80 Open | 22 Filtered, 80 Filtered |
+
+
+
+
+
+
 
 
 
