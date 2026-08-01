@@ -361,6 +361,22 @@ The Brave browser automatically upgraded HTTP requests to HTTPS using the Upgrad
 (I'm using Brave browser) Disabled the Upgrade connections to HTTPS browser setting and accessed the website using the HTTP URL. The Nginx welcome page loaded successfully afterward.
 ![brave](troubleshooting/brave.png)
 
+## AWS Services Used
 
+- Amazon EC2
+- Amazon VPC
 
+## Resource Cleanup
+
+To avoid unexpected AWS charges, remove the following resources after completing the project:
+
+- Terminate the EC2 instance.
+- Delete the custom VPC.
+
+## Key Takeaways
+
+- Learned how TCP connectivity differs from application availability.
+- Compared Security Groups (stateful) and Network ACLs (stateless) through hands-on experiments.
+- Used Netcat and Nmap to validate TCP connectivity and analyze firewall behavior.
+- Practiced troubleshooting from the application layer to the network layer.
 
