@@ -51,12 +51,8 @@ The default Nginx web page is successfully displayed through the EC2 public IP, 
 Install Netcat and use it to validate TCP connectivity between the client and the web server. This phase demonstrates how TCP connections behave when a service is listening on a port and when no service is available.
 
 ## Step 1 - Install Netcat
-- Install Netcat on the Amazon Linux instance.
-  
-sudo dnf install nc -y
-- Verify the installation.
-
-nc -h
+- Install Netcat on the Amazon Linux instance. > sudo dnf install nc -y
+- Verify the installation. > nc -h
 ![menu](image2/nc-menu.png)
 The Netcat utility is successfully installed and ready to perform TCP connectivity testing.
 
@@ -65,9 +61,9 @@ The Netcat utility is successfully installed and ready to perform TCP connectivi
 
 nc -vz 127.0.0.1 80
 
-nc -vz <Private-IP> 80
+nc -vz Private-IP 80
 
-nc -vz <Public-IP> 80
+nc -vz Public-IP 80
 
 ![nc](image2/nc-127.png)
 
@@ -100,40 +96,28 @@ A successful TCP connection does not necessarily mean the application is functio
 Install Nmap and perform port scanning against the EC2 instance using localhost, private IP, and public IP addresses. This phase demonstrates how network visibility changes depending on the traffic path and AWS firewall configuration.
 
 ## Step 1 - Install Nmap
-- Install Nmap on the Amazon Linux EC2 instance.
+- Install Nmap on the Amazon Linux EC2 instance. > sudo dnf install nmap -y
 
-sudo dnf install nmap -y
-
-- Verify the installation.
-
-nmap --version
+- Verify the installation. > nmap --version
 
 ![nmap](image3/nmap-version.png)
 Nmap is successfully installed and ready to perform network and port scanning.
 
 ## Step 2 - Scan the Localhost Interface
-- Scan the localhost interface to identify services currently listening on the EC2 instance.
-
-nmap 127.0.0.1
+- Scan the localhost interface to identify services currently listening on the EC2 instance. > nmap 127.0.0.1
 
 ![localhost](image3/localhost.png)
 The scan shows that both SSH (22) and HTTP (80) services are listening locally on the EC2 instance.
 
 ## Step 3 - Scan the Private IP Address
-- Retrieve the private IP address.
-
-hostname -I
-- Scan the private IP.
-
-nmap Private-IP
+- Retrieve the private IP address. > hostname -I
+- Scan the private IP. > nmap Private-IP
 
 ![private](image3/private-IP.png)
 The private IP scan confirms that both SSH and HTTP services are reachable within the VPC network.
 
 ## Step 4 - Scan the Public IP Address
-- Scan the EC2 public IP address.
-
-nmap -Pn -p 22,80 Public-IP
+- Scan the EC2 public IP address. > nmap -Pn -p 22,80 Public-IP
 
 ![sudo](image3/sudo-Pnp.png)
 
@@ -181,26 +165,19 @@ http://Public-IP
 The browser can no longer reach the web server because HTTP traffic is blocked by the Security Group.
 
 ## Step 4 - Verify the Nginx Service
-- Check whether the Nginx service is still running.
-
-sudo systemctl status nginx
+- Check whether the Nginx service is still running. > sudo systemctl status nginx
 ![nginx](image1/status-nginx.png)
 
 Although the website is no longer accessible from the internet, the Nginx service continues to run normally.
 
 ## Step 5 - Verify the Listening Port
-- Display the listening TCP ports.
-
-sudo ss -tulnp | grep nginx
+- Display the listening TCP ports. > sudo ss -tulnp | grep nginx
 ![listen](image4/listen-80.png)
 
 Nginx continues listening on TCP port 80, confirming that the operating system has not stopped the service.
 
 ## Step 6 - Test Local Connectivity
-- Verify TCP connectivity from the EC2 instance itself.
-
-nc -vz 127.0.0.1 80
-
+- Verify TCP connectivity from the EC2 instance itself. > nc -vz 127.0.0.1 80
 ![nc](image4/nc-vz.png)
 
 - Next, scan localhost.
@@ -209,9 +186,7 @@ nc -vz 127.0.0.1 80
 Local TCP connectivity remains successful because localhost traffic does not depend on the Security Group.
 
 ## Step 7 - Scan the Public IP Address
-- Perform another port scan against the EC2 public IP.
-
-nmap -Pn -p 22,80 Public-IP
+- Perform another port scan against the EC2 public IP. > nmap -Pn -p 22,80 Public-IP
 ![filtered](image4/filtered.png)
 
 Both ports appear filtered from the public network, demonstrating that the Security Group blocks incoming connections before they reach the EC2 instance.
@@ -246,9 +221,7 @@ http://Public-IP
 The HTTP inbound rule is restored, allowing the web server to become accessible again before starting the Network ACL experiment.
 
 ## Step 2 - Validate the Baseline
-- Confirm that the environment has returned to its normal state.
-
-nmap -Pn -p 22,80 Public-IP
+- Confirm that the environment has returned to its normal state. > nmap -Pn -p 22,80 Public-IP
 ![-Pn-p](image3/sudo-Pnp.png)
 
 The scan confirms that HTTP traffic is reachable again while SSH remains restricted by the Security Group.
