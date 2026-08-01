@@ -345,13 +345,14 @@ The client's public IP address changed, causing the existing Security Group SSH 
 
 Remove old ssh and Updated the Security Group inbound SSH rule with the current My IP address. After updating the rule, SSH connectivity was successfully restored.
 ![solution](troubleshooting/solution.png)
+![solution](troubleshooting/done.png)
 
 ## Troubleshooting 2 - Unable to Access the Nginx Web Page
 
 - Problem
 
 The Nginx web page continued loading and never displayed the default welcome page.
-![no site](image4/no-site.png)
+![no site](troubleshooting/loading.png)
 - Cause 
 
 The Brave browser automatically upgraded HTTP requests to HTTPS using the Upgrade connections to HTTPS feature, while the web server only served HTTP traffic.
