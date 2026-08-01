@@ -57,8 +57,9 @@ sudo dnf install nc -y
 - Verify the installation.
 
 nc -h
-![menu](image/nc-menu.png)
-The Netcat utility is successfully installed and ready to perform TCP connectivity testing.
+![menu](image2/nc-menu.png)
+
+he Netcat utility is successfully installed and ready to perform TCP connectivity testing.
 
 ## Step 2 - Test TCP Connectivity to Port 80
 - Verify that Nginx is accepting TCP connections on port 80.
@@ -68,14 +69,18 @@ nc -vz 127.0.0.1 80
 nc -vz <Private-IP> 80
 
 nc -vz <Public-IP> 80
-![nc](image/nc-127.png)
+
+![nc](image2/nc-127.png)
+
 Netcat successfully establishes a TCP connection to the Nginx web server, confirming that the service is listening and accepting connections on port 80.
 
 ## Step 3 - Test an Unused TCP Port
 - Attempt to connect to a port where no application is listening.
 
 nc -vz 127.0.0.1 8080
-![8080](image/8080.png)
+
+![8080](image2/8080.png)
+
 The connection is refused because no application is listening on port 8080, demonstrating the difference between an unavailable service and a firewall restriction.
 
 ## Step 4 - Compare the Results
@@ -91,21 +96,65 @@ A comparison between successful and failed TCP connection attempts illustrates h
 ## 💡 Lesson Learned
 A successful TCP connection does not necessarily mean the application is functioning correctly—it simply confirms that the target service is accepting TCP connections. Likewise, a Connection Refused response indicates that the host is reachable but no application is listening on the specified port.
 
+# Phase 3 - Discovering Open Ports with Nmap
+## Objective
+Install Nmap and perform port scanning against the EC2 instance using localhost, private IP, and public IP addresses. This phase demonstrates how network visibility changes depending on the traffic path and AWS firewall configuration.
 
+## Step 1 - Install Nmap
+- Install Nmap on the Amazon Linux EC2 instance.
 
+sudo dnf install nmap -y
 
+- Verify the installation.
 
+nmap --version
 
+![nmap](image3/nmap-version.png)
 
+Nmap is successfully installed and ready to perform network and port scanning.
 
+## Step 2 - Scan the Localhost Interface
+- Scan the localhost interface to identify services currently listening on the EC2 instance.
 
+nmap 127.0.0.1
 
+![localhost](image3/localhost.png)
 
+The scan shows that both SSH (22) and HTTP (80) services are listening locally on the EC2 instance.
 
+## Step 3 - Scan the Private IP Address
+- Retrieve the private IP address.
 
+hostname -I
+- Scan the private IP.
 
+nmap Private-IP
 
+![private](image3/private-IP.png)
 
+The private IP scan confirms that both SSH and HTTP services are reachable within the VPC network.
+
+## Step 4 - Scan the Public IP Address
+- Scan the EC2 public IP address.
+
+nmap -Pn -p 22,80 Public-IP
+
+![sudo](image3/sudo-Pnp.png)
+The public IP scan shows that HTTP is accessible, while SSH appears as filtered because the Security Group only allows SSH connections from the administrator's public IP.
+
+## Step 5 - Compare the Scan Results
+- Compare the results obtained from the three scans.
+
+| Target     | Port 22  | Port 80 |
+| ---------- | -------- | ------- |
+| Localhost  | Open     | Open    |
+| Private IP | Open     | Open    |
+| Public IP  | Filtered | Open    |
+
+The comparison highlights how scan results change depending on the network path and AWS Security Group configuration.
+
+## 💡 Lesson Learned
+Nmap reports the network perspective of a service rather than the service status itself. A service may be running and listening locally, yet appear filtered when scanned through the public network due to firewall rules such as AWS Security Groups.
 
 
 
