@@ -211,7 +211,7 @@ Local TCP connectivity remains successful because localhost traffic does not dep
 ## Step 7 - Scan the Public IP Address
 - Perform another port scan against the EC2 public IP.
 
-nmap -Pn -p 22,80 <Public-IP>
+nmap -Pn -p 22,80 Public-IP
 ![filtered](image4/filtered.png)
 
 Both ports appear filtered from the public network, demonstrating that the Security Group blocks incoming connections before they reach the EC2 instance.
@@ -227,15 +227,107 @@ Both ports appear filtered from the public network, demonstrating that the Secur
 | Local Nmap Scan   | 22 Open, 80 Open     | 22 Open, 80 Open         |
 | Public Nmap Scan  | 22 Filtered, 80 Open | 22 Filtered, 80 Filtered |
 
+# Phase 5 - Understanding Stateless Firewall Behavior with Network ACLs
+## Objective
+Demonstrate how AWS Network ACLs evaluate inbound and outbound traffic independently. This phase compares inbound and outbound filtering to explain why Network ACLs are considered stateless firewalls.
 
+## Step 1 - Restore the Security Group Configuration
+- Before testing the Network ACL, restore the Security Group by adding back the HTTP inbound rule.
 
+| Type | Port   | Source    |
+| ---- | ------ | --------- |
+| HTTP | TCP 80 | 0.0.0.0/0 |
 
+- Verify that the web server is accessible again.
 
+http://Public-IP
+![new](image5/new-inbound.png)
 
+The HTTP inbound rule is restored, allowing the web server to become accessible again before starting the Network ACL experiment.
 
+## Step 2 - Validate the Baseline
+- Confirm that the environment has returned to its normal state.
 
+nmap -Pn -p 22,80 Public-IP
+![-Pn-p](image3/sudo-Pnp.png)
+The scan confirms that HTTP traffic is reachable again while SSH remains restricted by the Security Group.
 
+# Experiment 1 - Blocking Inbound HTTP
+## Step 3 - Create an Inbound DENY Rule
+- Edit the Network ACL inbound rules.
 
+| Rule | Type | Port | Source    | Action |
+| ---: | ---- | ---- | --------- | ------ |
+|   90 | HTTP | 80   | 0.0.0.0/0 | DENY   |
 
+![deny](image5/deny-nacl)
+
+A higher-priority DENY rule is added to block inbound HTTP traffic before the default ALLOW rule is evaluated.
+
+## Step 4 - Validate the Results
+- Perform the following validations.
+
+1. Browsing http://Public-IP
+2. Check the Nginx service. > sudo systemctl status nginx
+3. Verify listening ports. > sudo ss -tulnp | grep nginx
+4. Verify local connectivity. > nc -vz 127.0.0.1 80
+5. Scan localhost. > nmap 127.0.0.1
+6. Scan the public IP. > nmap -Pn -p 22,80 <Public-IP>
+
+| Validation     | Result                    |
+| -------------- | ------------------------- |
+| Browser        | Blocked                   |
+| Nginx          | Running                   |
+| Local TCP Test | Connected                 |
+| Local Nmap     | 22 Open / 80 Open         |
+| Public Nmap    | 22 Filtered / 80 Filtered |
+
+Although the web server remains operational locally, inbound HTTP traffic is blocked at the subnet level before reaching the EC2 instance.
+
+# Experiment 2 - Blocking Outbound HTTP
+## Step 5 - Modify the Network ACL Rules
+- Remove the inbound DENY rule.
+- Next, edit the outbound rules and add:
+
+| Rule | Type | Port | Destination | Action |
+| ---: | ---- | ---- | ----------- | ------ |
+|   90 | HTTP | 80   | 0.0.0.0/0   | DENY   |
+
+Leave Rule 100 (ALLOW ALL) unchanged.
+![deny](image5/deny-outbound.png)
+The outbound HTTP response is blocked while inbound traffic remains allowed.
+
+## Step 6 - Validate the Results
+- Repeat the same validation process.
+
+1. Browsing http://Public-IP
+2. Check the Nginx service. > sudo systemctl status nginx
+3. Verify listening ports. > sudo ss -tulnp | grep nginx
+4. Verify local connectivity. > nc -vz 127.0.0.1 80
+5. Scan localhost. > nmap 127.0.0.1
+6. Scan the public IP. > nmap -Pn -p 22,80 <Public-IP>
+
+| Validation     | Result                |
+| -------------- | --------------------- |
+| Browser        | Blocked               |
+| Nginx          | Running               |
+| Local TCP Test | Connected             |
+| Local Nmap     | 22 Open / 80 Open     |
+| Public Nmap    | 22 Filtered / 80 Open |
+
+The web server still accepts incoming connections, but outbound HTTP responses are blocked, preventing successful communication with external clients.
+
+## Results Comparison
+
+| Validation     | Inbound DENY              | Outbound DENY         |
+| -------------- | ------------------------- | --------------------- |
+| Browser        | ❌ Blocked                 | ❌ Blocked             |
+| Nginx          | Running                   | Running               |
+| Local TCP Test | Connected                 | Connected             |
+| Local Nmap     | 22 Open / 80 Open         | 22 Open / 80 Open     |
+| Public Nmap    | 22 Filtered / 80 Filtered | 22 Filtered / 80 Open |
+
+## 💡 Lesson Learned
+Unlike Security Groups, AWS Network ACLs are stateless firewalls. Inbound and outbound traffic are evaluated independently, meaning a request can be allowed while the corresponding response is blocked. This behavior requires explicit rules for both traffic directions when implementing subnet-level network controls.
 
 
