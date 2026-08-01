@@ -58,7 +58,6 @@ sudo dnf install nc -y
 
 nc -h
 ![menu](image2/nc-menu.png)
-
 he Netcat utility is successfully installed and ready to perform TCP connectivity testing.
 
 ## Step 2 - Test TCP Connectivity to Port 80
@@ -110,7 +109,6 @@ sudo dnf install nmap -y
 nmap --version
 
 ![nmap](image3/nmap-version.png)
-
 Nmap is successfully installed and ready to perform network and port scanning.
 
 ## Step 2 - Scan the Localhost Interface
@@ -119,7 +117,6 @@ Nmap is successfully installed and ready to perform network and port scanning.
 nmap 127.0.0.1
 
 ![localhost](image3/localhost.png)
-
 The scan shows that both SSH (22) and HTTP (80) services are listening locally on the EC2 instance.
 
 ## Step 3 - Scan the Private IP Address
@@ -131,7 +128,6 @@ hostname -I
 nmap Private-IP
 
 ![private](image3/private-IP.png)
-
 The private IP scan confirms that both SSH and HTTP services are reachable within the VPC network.
 
 ## Step 4 - Scan the Public IP Address
@@ -140,6 +136,7 @@ The private IP scan confirms that both SSH and HTTP services are reachable withi
 nmap -Pn -p 22,80 Public-IP
 
 ![sudo](image3/sudo-Pnp.png)
+
 The public IP scan shows that HTTP is accessible, while SSH appears as filtered because the Security Group only allows SSH connections from the administrator's public IP.
 
 ## Step 5 - Compare the Scan Results
