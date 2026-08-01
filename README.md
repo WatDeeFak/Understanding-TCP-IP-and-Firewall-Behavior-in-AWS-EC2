@@ -241,7 +241,7 @@ Demonstrate how AWS Network ACLs evaluate inbound and outbound traffic independe
 - Verify that the web server is accessible again.
 
 http://Public-IP
-![new](image5/new-inbound.png)
+![new](image5/new-nacl.png)
 
 The HTTP inbound rule is restored, allowing the web server to become accessible again before starting the Network ACL experiment.
 
@@ -250,6 +250,7 @@ The HTTP inbound rule is restored, allowing the web server to become accessible 
 
 nmap -Pn -p 22,80 Public-IP
 ![-Pn-p](image3/sudo-Pnp.png)
+
 The scan confirms that HTTP traffic is reachable again while SSH remains restricted by the Security Group.
 
 # Experiment 1 - Blocking Inbound HTTP
@@ -260,7 +261,7 @@ The scan confirms that HTTP traffic is reachable again while SSH remains restric
 | ---: | ---- | ---- | --------- | ------ |
 |   90 | HTTP | 80   | 0.0.0.0/0 | DENY   |
 
-![deny](image5/deny-nacl)
+![deny](image5/deny-inbound.png)
 
 A higher-priority DENY rule is added to block inbound HTTP traffic before the default ALLOW rule is evaluated.
 
@@ -329,5 +330,36 @@ The web server still accepts incoming connections, but outbound HTTP responses a
 
 ## 💡 Lesson Learned
 Unlike Security Groups, AWS Network ACLs are stateless firewalls. Inbound and outbound traffic are evaluated independently, meaning a request can be allowed while the corresponding response is blocked. This behavior requires explicit rules for both traffic directions when implementing subnet-level network controls.
+
+# Troubleshooting
+## Troubleshooting 1 - Unable to Connect to EC2 via SSH
+
+- Problem
+
+Unable to establish an SSH connection to the EC2 instance.
+![solution](troubleshooting/connection-reset.png)
+- Cause
+
+The client's public IP address changed, causing the existing Security Group SSH rule (My IP) to no longer match the current IP address.
+- Solution
+
+Remove old ssh and Updated the Security Group inbound SSH rule with the current My IP address. After updating the rule, SSH connectivity was successfully restored.
+![solution](troubleshooting/solution.png)
+
+## Troubleshooting 2 - Unable to Access the Nginx Web Page
+
+- Problem
+
+The Nginx web page continued loading and never displayed the default welcome page.
+![no site](image4/no-site.png)
+- Cause 
+
+The Brave browser automatically upgraded HTTP requests to HTTPS using the Upgrade connections to HTTPS feature, while the web server only served HTTP traffic.
+- Solution
+
+(I'm using Brave browser) Disabled the Upgrade connections to HTTPS browser setting and accessed the website using the HTTP URL. The Nginx welcome page loaded successfully afterward.
+![brave](troubleshooting/brave.png)
+
+
 
 
