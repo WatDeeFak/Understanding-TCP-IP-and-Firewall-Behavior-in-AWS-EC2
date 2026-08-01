@@ -200,6 +200,7 @@ Nginx continues listening on TCP port 80, confirming that the operating system h
 - Verify TCP connectivity from the EC2 instance itself.
 
 nc -vz 127.0.0.1 80
+
 ![nc](image4/nc-vz.png)
 
 - Next, scan localhost.
